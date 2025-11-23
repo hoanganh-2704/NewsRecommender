@@ -19,6 +19,9 @@ class BERTTextEncoder(nn.Module):
             self.projection = nn.Linear(768, output_dim)
         else:
             self.projection = nn.Identity()
+            
+        # Fusion layer for combining title and abstract
+        self.fusion = nn.Linear(output_dim * 2, output_dim)
     
     def encode(self, texts: list, max_length: int = 100) -> torch.Tensor:
         """
@@ -75,8 +78,7 @@ class BERTTextEncoder(nn.Module):
         # Combine: simple concatenation or weighted sum
         # Option 1: Concatenate and project
         combined = torch.cat([title_emb, abstract_emb], dim=1)
-        if combined.size(1) != self.output_dim:
-            combined = self.projection(combined)
+        combined = self.fusion(combined)
         
         # Option 2: Weighted sum (uncomment to use)
         # combined = 0.6 * title_emb + 0.4 * abstract_emb
