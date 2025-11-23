@@ -11,12 +11,6 @@ Xây dựng hệ thống **Personalized News Recommendation** - gợi ý tin t�
 - Hành vi tương tác
 - Nội dung bài viết (title, abstract, category, entities)
 
-### Mô hình
-**Hybrid Model** kết hợp:
-- **Fastformer**: Attention hiệu quả O(n)
-- **Entity Knowledge**: Khai thác tri thức từ WikiData
-- **Multi-interest Modeling**: Mô hình hóa nhiều sở thích người dùng
-
 ### Bộ dữ liệu
 **MIND (Microsoft News Dataset)**
 - ~1M users, ~161K articles, ~24M clicks
@@ -36,40 +30,28 @@ pip install -r requirements.txt
 ```
 
 ### 3. Tải dữ liệu MIND
-Tải và giải nén MIND dataset vào thư mục `data/`:
+Dự án sử dụng bộ dữ liệu MIND-small. Bạn có thể tải về từ Hugging Face:
+
+```bash
+# Tạo thư mục data
+mkdir -p data
+
+# Tải và giải nén MIND-small (Training set)
+wget https://huggingface.co/datasets/yjw1029/MIND/resolve/main/MINDsmall_train.zip -O data/MINDsmall_train.zip
+cd data
+unzip MINDsmall_train.zip -d MINDsmall_train
+rm MINDsmall_train.zip
+cd ..
+```
+
+Cấu trúc thư mục sau khi giải nén:
 ```
 data/
-├── news.tsv
-├── train/
-│   └── behaviors.tsv
-├── val/
-│   └── behaviors.tsv
-└── test/
-    └── behaviors.tsv
-```
-
-## 📁 Cấu trúc Dự án
-
-```
-NewsRecommender/
-├── src/
-│   ├── data/
-│   │   ├── mind_dataset.py      # Dataset loader
-│   │   └── text_encoder.py      # Text encoding (BERT/GloVe)
-│   ├── models/
-│   │   ├── news_encoder.py      # News Encoder module
-│   │   ├── user_encoder.py      # User Encoder module
-│   │   └── hybrid_model.py      # Complete Hybrid model
-│   ├── utils/
-│   │   ├── config.py            # Configuration
-│   │   └── metrics.py           # Evaluation metrics
-│   └── training/
-│       ├── train.py             # Training script
-│       └── evaluate.py          # Evaluation script
-├── CHECKLIST.md                 # Checklist thực hiện
-├── MO_TA_DU_AN.md              # Mô tả chi tiết dự án
-├── requirements.txt
-└── README.md
+└── MINDsmall_train/
+    ├── behaviors.tsv
+    ├── news.tsv
+    ├── entity_embedding.vec
+    └── relation_embedding.vec
 ```
 
 ## 💻 Sử dụng
@@ -92,7 +74,7 @@ python -m src.training.train \
 ```bash
 python -m src.training.evaluate \
     --checkpoint outputs/checkpoints/best_model.pt \
-    --data_dir data \
+    --data_dir data/MINDsmall_train \
     --split test \
     --device cuda
 ```
@@ -131,11 +113,3 @@ Tạo file `config.json` để tùy chỉnh:
 - **MRR**: Mean Reciprocal Rank
 - **nDCG@5**: Normalized Discounted Cumulative Gain @ 5
 - **nDCG@10**: Normalized Discounted Cumulative Gain @ 10
-
-### Baseline Results (Reference)
-| Model | AUC | MRR | nDCG@5 | nDCG@10 |
-|-------|-----|-----|--------|---------|
-| NAML | 0.6686 | 0.3249 | 0.3524 | 0.4091 |
-| NRMS | 0.6776 | 0.3305 | 0.3594 | 0.4163 |
-| MINER | 0.7275 | 0.3724 | 0.4102 | 0.4661 |
-| Fastformer | 0.7268 | 0.3745 | 0.4151 | 0.4684 |

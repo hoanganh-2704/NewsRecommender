@@ -1,0 +1,9 @@
+Proposal_Team_7.pdf
+proposal.txt
+data/
+outputs/
+__pycache__/
+*.pyc
+.ipynb_checkpoints
+.venv
+.DS_Store
